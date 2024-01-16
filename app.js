@@ -1,5 +1,5 @@
 const express = require("express")
-const {getTopics, getEndpoints, getArticleById} = require("./controllers")
+const {getTopics, getEndpoints, getArticleById, getArticles} = require("./controllers")
 
 const app = express()
 
@@ -9,7 +9,7 @@ app.get("/api", getEndpoints)
 
 app.get('/api/articles/:article_id', getArticleById);
 
-
+app.get('/api/articles', getArticles)
 app.use((err, req, res, next) => {
     if (err.status && err.msg) {
       res.status(err.status).send({ msg: err.msg });
