@@ -63,3 +63,31 @@ exports.selectArticleById = (article_id) => {
         return rows;
     })
   };
+
+  exports.addComment= (article_id, newComment) => {
+    if (!newComment || !newComment.username || !newComment.body) {
+        return Promise.reject({status: 400, msg: 'bad request'});
+      }
+      const { username, body } = newComment;
+    return checkUsernameExists(newComment.username)
+      .then((userExists) => {
+        return db.query(
+        `INSERT INTO comments (article_id, author, body)
+        VALUES ($1, $2, $3)
+        RETURNING *;`,
+        [article_id, username, body]
+        )
+        .then(({ rows }) => newComment)
+      })
+  }
+  function checkUsernameExists(username){
+    return db.query('SELECT 1 FROM users WHERE username = $1;', [username])
+    .then(({ rows }) => {
+        if (rows.length ===0){
+            return Promise.reject({ status: 404, msg: 'author does not exist'})
+        }
+        else {
+            return rows.length > 0
+        }
+    });
+  }
