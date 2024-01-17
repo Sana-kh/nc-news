@@ -114,3 +114,41 @@ describe("GET /api/articles", () => {
         })
       })
 })
+
+describe("GET /api/articles/:article_id/comments", () => {
+    test("responds with an array of comments for the given article_id", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            const { comments } = body
+            expect(Array.isArray(comments)).toBe(true);
+            comments.forEach((comment) => {
+                expect(comment).toHaveProperty('comment_id');
+                expect(comment).toHaveProperty('votes');
+                expect(comment).toHaveProperty('created_at');
+                expect(comment).toHaveProperty('author');
+                expect(comment).toHaveProperty('body');
+                expect(comment).toHaveProperty('article_id');        
+            });
+            //comments should be served with the most recent comments first.
+            expect(comments).toBeSortedBy('created_at', {descending : true})
+          });
+      });
+      test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+        return request(app)
+          .get('/api/articles/999/comments')
+          .expect(404)
+          .then((response) => {
+            expect(response.body.msg).toBe('article not found');
+          });
+      });
+      test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+        return request(app)
+          .get('/api/articles/not-an-article-id/comments')
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+})
