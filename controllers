@@ -1,4 +1,4 @@
-const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId, addComment, updateArticleVotes}= require("./models")
+const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId, addComment, updateArticleVotes, deleteCommentById}= require("./models")
 const db = require('./db/connection')
 
 function getTopics(req, res, next){
@@ -77,9 +77,24 @@ function getArticles (req, res, next) {
         res.status(200).send({ article: updatedArticle });
       })
       .catch((err) => {
-        console.log(err)
         next(err);
       });
   }
+
+  function deleteComment(req, res, next) {
+    const { comment_id } = req.params;
+  
+    deleteCommentById(comment_id)
+      .then(() => {
+        res.status(204).end();
+      })
+      .catch((err) => {
+        if (err.message === 'Comment not found') {
+          res.status(404).send({ msg: err.message });
+        } else {
+          next(err);
+        }
+      });
+  }
  
-module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes}
+module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes, deleteComment}
