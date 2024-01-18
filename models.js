@@ -91,3 +91,28 @@ exports.selectArticleById = (article_id) => {
         }
     });
   }
+
+exports.updateArticleVotes = (articleId, newVote) => {
+  if (!newVote || !newVote.inc_votes) {
+    return Promise.reject({status: 400, msg: 'invalid body'});
+  }
+  const {inc_votes} = newVote
+  return db.query(
+    'UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;',
+    [inc_votes, articleId]
+  ).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: 'article not found'})
+    }
+       // Check if the updated votes are below zero
+    const updatedVotes = rows[0].votes;
+    if (updatedVotes < 0) {
+      return Promise.reject({ status: 400, msg: 'Votes cannot go below zero'})
+    }
+    return rows[0];
+  });
+}
+
+
+
+

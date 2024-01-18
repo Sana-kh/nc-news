@@ -1,4 +1,4 @@
-const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId, addComment}= require("./models")
+const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId, addComment, updateArticleVotes}= require("./models")
 const db = require('./db/connection')
 
 function getTopics(req, res, next){
@@ -61,10 +61,25 @@ function getArticles (req, res, next) {
         res.status(201).send({ comment: newComment });
       })
       .catch((err) => {
-        console.log(err)
         next(err);
       });
   };
 
+  function patchArticleVotes(req, res, next) {
+    const  article_id  = req.params.article_id;
+    const newVote = req.body;
+  
+    updateArticleVotes(article_id, newVote)
+      .then((updatedArticle) => {
+        if(updatedArticle.votes<0){
+
+        }
+        res.status(200).send({ article: updatedArticle });
+      })
+      .catch((err) => {
+        console.log(err)
+        next(err);
+      });
+  }
  
-module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments}
+module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes}

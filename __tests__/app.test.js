@@ -204,3 +204,51 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
  
 })
+describe('PATCH /api/articles/article_id', () => {
+  test('should update the votes in article', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.votes).toBe(110);
+      
+      });
+  });
+  test('responds with a 400 error when article_id is invalid', () => {
+    return request(app)
+      .patch(`/api/articles/invalid_id`)
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request');
+      });
+  });
+  test('responds with a 404 error when article_id does not exist', () => {
+    return request(app)
+      .patch(`/api/articles/99`)
+      .send({ inc_votes: 10 })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe('article not found');
+      });
+  });
+  test('responds with a 400 error when body is missing or has an empty object', () => {
+    return request(app)
+    .patch(`/api/articles/1`)
+    .send({})
+    .expect(400)
+    .then((response) => {
+      expect(response.body.msg).toBe('invalid body');
+    });
+  })
+  test('responds with a 400 error if the updated votes is below zero', () => {
+    return request(app)
+      .patch(`/api/articles/1`)
+      .send({ inc_votes: -200 })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Votes cannot go below zero');
+      });
+  });
+})
