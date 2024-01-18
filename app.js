@@ -1,5 +1,5 @@
 const express = require("express")
-const {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes} = require("./controllers")
+const {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes, deleteComment} = require("./controllers")
 
 const app = express()
 
@@ -18,6 +18,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 app.post("/api/articles/:article_id/comments", postComments);
 
 app.patch('/api/articles/:article_id', patchArticleVotes);
+
+app.delete('/api/comments/:comment_id', deleteComment);
 
 app.all('*', (req, res) => {
     res.status(404).send( { msg: 'route does not exist'})
