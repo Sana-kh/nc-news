@@ -1,4 +1,5 @@
-const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId}= require("./models")
+const {fetchTopics, fetchEndpoints, selectArticleById, selectArticles, selectCommentsByArticleId, addComment}= require("./models")
+const db = require('./db/connection')
 
 function getTopics(req, res, next){
 
@@ -51,4 +52,19 @@ function getArticles (req, res, next) {
       });
   };
 
-module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId}
+  function postComments (req, res, next) {
+    const article_id   = req.params.article_id;
+    const newComment  = req.body;
+  
+    addComment(article_id, newComment)
+      .then((comment) => {
+        res.status(201).send({ comment: newComment });
+      })
+      .catch((err) => {
+        console.log(err)
+        next(err);
+      });
+  };
+
+ 
+module.exports = {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments}

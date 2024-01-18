@@ -16,10 +16,9 @@ describe("404 error handler", () =>{
         return request(app)
             .get("/api/something")
             .expect(404)
-            // .then(({body}) => {
-            //     console.log(body)
-            //     expect(body.msg).toBe("Not Found")
-            // })
+            .then(({body}) => {
+                expect(body.msg).toBe("route does not exist")
+            })
       })
 })
 describe("GET /api/topics", () => {
@@ -151,4 +150,57 @@ describe("GET /api/articles/:article_id/comments", () => {
             expect(response.body.msg).toBe('Bad request');
           });
       });
+})
+
+describe("POST /api/articles/:article_id/comments", () => {
+    const newComment = { username: 'butter_bridge',body: 'This is a test comment' }
+    test('responds with the posted comment', () => {
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({body}) => {
+            expect(body.comment).toEqual({ username: 'butter_bridge',body: 'This is a test comment' })
+        })
+    })
+    test('responds with a 400 error when article_id is invalid or does not exist', () => {
+        return request(app)
+          .post(`/api/articles/invalid_id/comments`)
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('Bad request');
+          });
+      });
+      test('responds with a 400 error when body is missing or either properties on the body are missing', () => {
+        const invalidComment = { username: 'butter_bridge' }; 
+        return request(app)
+          .post(`/api/articles/1/comments`)
+          .send(invalidComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe('bad request');
+          });
+      });
+      test('responds with a 400 error when wrong property names or invalid data types on body', () => {
+        const invalidComment = { user: 'butter_bridge', comment_body: 'Invalid body' };
+        return request(app)
+          .post(`/api/articles/1/comments`)
+          .send(invalidComment)
+          .then((response) => {
+            expect(response.status).toBe(400);
+            expect(response.body.msg).toBe('bad request');
+          });
+      });
+      test('404 when providing a non-existent username', () => {
+        const invalidComment = ({ username: 'non-existent', body: 'bla bla'})
+        return request(app)
+        .post(`/api/articles/1/comments`)
+        .send(invalidComment)
+        .then((response) => {
+          expect(response.status).toBe(404);
+          expect(response.body.msg).toBe('author does not exist');
+        });
+      })
+ 
 })
