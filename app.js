@@ -1,5 +1,5 @@
 const express = require("express")
-const {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments} = require("./controllers")
+const {getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes} = require("./controllers")
 
 const app = express()
 
@@ -17,6 +17,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
 app.post("/api/articles/:article_id/comments", postComments);
 
+app.patch('/api/articles/:article_id', patchArticleVotes);
+
 app.all('*', (req, res) => {
     res.status(404).send( { msg: 'route does not exist'})
 })
@@ -27,6 +29,13 @@ app.use((err, req, res, next) => {
     }
     else{
         next(err)
+    }
+})
+app.use((err, req, res, next) => {
+    if (err.code === '23502'){
+        res.status(400).send( { msg : 'votes can not be NULL'})
+    } else {
+        next (err)
     }
 })
 app.use((err,req,res,next) => {
