@@ -33,13 +33,33 @@ function getArticleById (req, res, next) {
   };
 
 function getArticles (req, res, next) {
-    selectArticles().then((articles) => {
-        res.status(200).send({articles})
-    })
+  const { topic } = req.query;
+  const selectArticlesQuery= selectArticles(topic)
+  const queries= [selectArticlesQuery];
+  if(topic){
+    const topicExistenceQuery= checkTopicExists(topic);
+    queries.push(topicExistenceQuery);
+  }
+  Promise.all(queries).then((response) => {
+    const articles= response[0]
+    res.status(200).send({articles})
+  })
     .catch((err) =>{
+      console.log(err)
         next(err);
     })
   }
+
+function checkTopicExists (topic){
+  return db.query(`SELECT * FROM topics
+  WHERE slug = $1`, [topic])
+  .then(({rows}) => {
+    if (rows.length ===0){
+      return Promise.reject({ status: 404, msg: 'topic not found'})
+    }
+  })
+}
+
  function getCommentsByArticleId (req, res, next) {
     const { article_id } = req.params;
   
