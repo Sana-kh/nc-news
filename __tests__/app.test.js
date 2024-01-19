@@ -85,35 +85,68 @@ describe("GET /api/articles/:article_id", () => {
 })
 
 describe("GET /api/articles", () => {
-    test("responds with an array of article objects", () => {
-        return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({ body }) => {
-          const { articles } = body;
-          expect(Array.isArray(articles)).toBe(true);
-          articles.forEach((article) => {
-              expect(article).toHaveProperty('author');
-              expect(article).toHaveProperty('title'); 
-              expect(article).toHaveProperty('article_id');
-              expect(article).toHaveProperty('topic'); 
-              expect(article).toHaveProperty('created_at'); 
-              expect(article).toHaveProperty('votes');
-              expect(article).toHaveProperty('article_img_url');
-              expect(article).toHaveProperty('comment_count');          
-          });
-       });
-    })
-    test("articles should be sorted by date in ascending order", () => {
-        return request(app)
-        .get("/api/articles")
-        .then(({body}) =>{
-            const { articles } = body;
-          expect(articles).toBeSortedBy('created_at', {descending : true})
-        })
+  test("responds with an array of article objects", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({ body }) => {
+      const { articles } = body;
+      console.log(articles)
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(13)
+      articles.forEach((article) => {
+        expect.objectContaining({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(Number),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+          comment_count: expect.any(Number)
+        })         
+      });
+    });
+  })
+    test("articles should be sorted by date in descending order", () => {
+      return request(app)
+      .get("/api/articles")
+      .then(({body}) =>{
+        const { articles } = body;
+        console.log(articles)
+        expect(articles).toBeSortedBy('created_at', {descending : true})
       })
+    })
+  test('200 - responds with an array of article objects with valid topic query', () => {
+    return request(app)
+    .get('/api/articles?topic=mitch')
+    .expect(200)
+    .then(({ body }) => {
+      const { articles } = body;
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(12)
+      articles.forEach((article) => {
+        expect(article.topic).toBe('mitch')
+      });
+    });
+  });
+  test('404 - providing a non-existent topic query', () => {
+    return request(app)
+    .get('/api/articles?topic=not_a_topic')
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe('topic not found')
+    })
+  })
+    test('200 - responds with empty array given topic with no articles', () => {
+      return request(app)
+      .get('/api/articles?topic=paper')
+      .expect(200)
+      .then(({body}) => {
+        expect(body.articles).toEqual([])
+      })
+    })
 })
-
 describe("GET /api/articles/:article_id/comments", () => {
     test("responds with an array of comments for the given article_id", () => {
         return request(app)
