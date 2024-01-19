@@ -51,37 +51,48 @@ describe("get /api", () =>{
 })
 
 describe("GET /api/articles/:article_id", () => {
-    test("responds with an article object", () => {
-        return request(app)
-            .get('/api/articles/1')
-            .expect(200)
-            .then(({body}) => {
-                expect(body.article.article_id).toBe(1);
-                expect(body.article.title).toBe('Living in the shadow of a great man');
-                expect(body.article.topic).toBe('mitch');
-                expect(body.article.author).toBe('butter_bridge');
-                expect(body.article.body).toBe('I find this existence challenging');
-                //expect(body.article.created_at).toEqual(JSON.parse(JSON.stringify(new Date (1594329060000))));
-                expect(body.article.votes).toBe(100);
-                expect(body.article.article_img_url).toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
+  test("responds with an article object", () => {
+    return request(app)
+      .get('/api/articles/1')
+      .expect(200)
+      .then(({body}) => {
+        expect(body.article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: new Date (1594329060000).toISOString(),
+          votes: 100,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        })
       });
+  })
+  test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+    return request(app)
+      .get('/api/articles/999')
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe('article not found');
+      });
+  });
+  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/not-an-article')
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe('Bad request');
+      });
+  });
+  test('200 - response should include comment_count', () => {
+    return request(app)
+    .get('/api/articles/9')
+    .expect(200)
+    .then(({body}) => {
+      expect(body.article.comment_count).toBe('2')
     })
-    test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
-        return request(app)
-          .get('/api/articles/999')
-          .expect(404)
-          .then((response) => {
-            expect(response.body.msg).toBe('article not found');
-          });
-      });
-      test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
-        return request(app)
-          .get('/api/articles/not-an-article')
-          .expect(400)
-          .then((response) => {
-            expect(response.body.msg).toBe('Bad request');
-          });
-      });
+  })
 })
 
 describe("GET /api/articles", () => {
@@ -91,7 +102,6 @@ describe("GET /api/articles", () => {
     .expect(200)
     .then(({ body }) => {
       const { articles } = body;
-      console.log(articles)
       expect(Array.isArray(articles)).toBe(true);
       expect(articles.length).toBe(13)
       articles.forEach((article) => {
@@ -113,7 +123,6 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .then(({body}) =>{
         const { articles } = body;
-        console.log(articles)
         expect(articles).toBeSortedBy('created_at', {descending : true})
       })
     })
