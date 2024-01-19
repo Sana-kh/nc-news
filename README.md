@@ -19,7 +19,7 @@ PostgreSQL (version 14.10 )
 *Installation
 1. Clone the repository:
 
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/Sana-kh/nc-news
 Navigate to the project directory:
 
 
