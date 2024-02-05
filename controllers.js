@@ -33,8 +33,8 @@ function getArticleById (req, res, next) {
   };
 
 function getArticles (req, res, next) {
-  const { topic } = req.query;
-  const selectArticlesQuery= selectArticles(topic)
+  const { topic, sort_by, order } = req.query;
+  const selectArticlesQuery= selectArticles(topic,sort_by,order)
   const queries= [selectArticlesQuery];
   if(topic){
     const topicExistenceQuery= checkTopicExists(topic);

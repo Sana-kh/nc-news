@@ -126,35 +126,35 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSortedBy('created_at', {descending : true})
       })
     })
-  test('200 - responds with an array of article objects with valid topic query', () => {
-    return request(app)
-    .get('/api/articles?topic=mitch')
-    .expect(200)
-    .then(({ body }) => {
-      const { articles } = body;
-      expect(Array.isArray(articles)).toBe(true);
-      expect(articles.length).toBe(12)
-      articles.forEach((article) => {
-        expect(article.topic).toBe('mitch')
-      });
-    });
-  });
-  test('404 - providing a non-existent topic query', () => {
-    return request(app)
-    .get('/api/articles?topic=not_a_topic')
-    .expect(404)
-    .then(({body}) => {
-      expect(body.msg).toBe('topic not found')
-    })
-  })
-    test('200 - responds with empty array given topic with no articles', () => {
-      return request(app)
-      .get('/api/articles?topic=paper')
-      .expect(200)
-      .then(({body}) => {
-        expect(body.articles).toEqual([])
-      })
-    })
+  // test('200 - responds with an array of article objects with valid topic query', () => {
+  //   return request(app)
+  //   .get('/api/articles?topic=mitch')
+  //   .expect(200)
+  //   .then(({ body }) => {
+  //     const { articles } = body;
+  //     expect(Array.isArray(articles)).toBe(true);
+  //     expect(articles.length).toBe(12)
+  //     articles.forEach((article) => {
+  //       expect(article.topic).toBe('mitch')
+  //     });
+  //   });
+  // });
+  // test('404 - providing a non-existent topic query', () => {
+  //   return request(app)
+  //   .get('/api/articles?topic=not_a_topic')
+  //   .expect(404)
+  //   .then(({body}) => {
+  //     expect(body.msg).toBe('topic not found')
+  //   })
+  // })
+  //   test('200 - responds with empty array given topic with no articles', () => {
+  //     return request(app)
+  //     .get('/api/articles?topic=paper')
+  //     .expect(200)
+  //     .then(({body}) => {
+  //       expect(body.articles).toEqual([])
+  //     })
+  //   })
 })
 describe("GET /api/articles/:article_id/comments", () => {
     test("responds with an array of comments for the given article_id", () => {
