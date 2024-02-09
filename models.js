@@ -52,7 +52,7 @@ exports.selectArticleById = (article_id) => {
     const sqlParameters= []
     if (topic){
       query += ' WHERE topic = $1';
-      sqlParameter.push(topic)
+      sqlParameters.push(topic)
     }
     query += ` GROUP BY articles.article_id
     ORDER BY ${sort_by} ${order};`;
